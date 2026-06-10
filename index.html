@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusMarket - Marketplace Mahasiswa</title>
+<style>
+  :root {
+    --primary: #4F46E5;
+    --primary-light: #EEF2FF;
+    --primary-dark: #3730A3;
+    --secondary: #06B6D4;
+    --accent: #F59E0B;
+    --success: #10B981;
+    --danger: #EF4444;
+    --warning: #F59E0B;
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-300: #D1D5DB;
+    --gray-500: #6B7280;
+    --gray-700: #374151;
+    --gray-900: #111827;
+    --text: #111827;
+    --text-muted: #6B7280;
+    --bg: #F3F4F6;
+    --card: #FFFFFF;
+    --border: #E5E7EB;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  
+  /* LAYOUT */
+  .app { display: flex; flex-direction: column; min-height: 100vh; }
+  .navbar { background: var(--card); border-bottom: 1px solid var(--border); padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
+  .nav-brand { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; color: var(--primary); text-decoration: none; cursor: pointer; }
+  .nav-brand span { background: var(--primary); color: white; padding: 4px 8px; border-radius: 8px; font-size: 14px; }
+  .nav-links { display: flex; align-items: center; gap: 8px; }
+  .nav-links button { background: none; border: none; padding: 8px 14px; border-radius: var(--radius-sm); cursor: pointer; color: var(--text-muted); font-size: 14px; font-weight: 500; transition: all .15s; }
+  .nav-links button:hover, .nav-links button.active { background: var(--primary-light); color: var(--primary); }
+  .nav-user { display: flex; align-items: center; gap: 10px; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; cursor: pointer; }
+  .badge { background: var(--danger); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+  
+  .main-content { flex: 1; }
+  .page { display: none; }
+  .page.active { display: block; }
+  
+  /* AUTH */
+  .auth-bg { min-height: 100vh; background: linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%); display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .auth-card { background: white; border-radius: 20px; padding: 40px; width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+  .auth-logo { text-align: center; margin-bottom: 28px; }
+  .auth-logo h1 { font-size: 28px; font-weight: 800; color: var(--primary); }
+  .auth-logo p { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+  .auth-tabs { display: flex; background: var(--gray-100); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 28px; }
+  .auth-tab { flex: 1; padding: 8px; border: none; background: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text-muted); transition: all .15s; }
+  .auth-tab.active { background: white; color: var(--primary); box-shadow: var(--shadow); }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--gray-700); margin-bottom: 6px; }
+  .form-control { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; color: var(--text); background: white; transition: border .15s; outline: none; }
+  .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+  select.form-control { cursor: pointer; }
+  textarea.form-control { resize: vertical; min-height: 100px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border: none; border-radius: var(--radius-sm); cursor: pointer; font-size: 14px; font-weight: 600; transition: all .15s; text-decoration: none; }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79,70,229,0.3); }
+  .btn-secondary { background: var(--gray-100); color: var(--text); }
+  .btn-secondary:hover { background: var(--gray-200); }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-success { background: var(--success); color: white; }
+  .btn-outline { background: white; color: var(--primary); border: 1.5px solid var(--primary); }
+  .btn-sm { padding: 6px 12px; font-size: 13px; }
+  .btn-full { width: 100%; justify-content: center; }
+  .error-msg { color: var(--danger); font-size: 13px; background: #FEF2F2; padding: 10px 14px; border-radius: var(--radius-sm); margin-bottom: 16px; display: none; }
+  .success-msg { color: var(--success); font-size: 13px; background: #F0FDF4; padding: 10px 14px; border-radius: var(--radius-sm); margin-bottom: 16px; display: none; }
+  
+  /* CONTAINER */
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .page-title { font-size: 22px; font-weight: 700; color: var(--text); }
+  .page-sub { font-size: 14px; color: var(--text-muted); margin-top: 2px; }
+  
+  /* HERO */
+  .hero { background: linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%); color: white; padding: 60px 24px; text-align: center; }
+  .hero h1 { font-size: 36px; font-weight: 800; margin-bottom: 12px; }
+  .hero p { font-size: 18px; opacity: .85; margin-bottom: 32px; }
+  .search-bar { display: flex; max-width: 600px; margin: 0 auto; background: white; border-radius: 50px; overflow: hidden; box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
+  .search-bar input { flex: 1; padding: 14px 20px; border: none; outline: none; font-size: 15px; color: var(--text); }
+  .search-bar button { padding: 14px 28px; background: var(--accent); border: none; cursor: pointer; color: white; font-weight: 700; font-size: 15px; transition: background .15s; }
+  .search-bar button:hover { background: #D97706; }
+  
+  /* CATEGORY PILLS */
+  .cats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
+  .cat-pill { padding: 8px 18px; border-radius: 50px; border: 1.5px solid var(--border); background: white; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-muted); transition: all .15s; display: flex; align-items: center; gap: 6px; }
+  .cat-pill:hover, .cat-pill.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+  
+  /* PRODUCT GRID */
+  .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+  .product-card { background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); transition: all .2s; cursor: pointer; border: 1px solid var(--border); }
+  .product-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--primary); }
+  .product-img { height: 180px; background: var(--gray-100); display: flex; align-items: center; justify-content: center; font-size: 56px; position: relative; overflow: hidden; }
+  .product-img img { width: 100%; height: 100%; object-fit: cover; }
+  .product-badge { position: absolute; top: 10px; left: 10px; background: var(--primary); color: white; padding: 3px 10px; border-radius: 50px; font-size: 11px; font-weight: 600; }
+  .product-badge.jasa { background: var(--secondary); }
+  .product-info { padding: 14px; }
+
+  .product-price { font-size: 17px; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+  .product-price.free { color: var(--success); }
+  .product-meta { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text-muted); }
+  .product-seller { display: flex; align-items: center; gap: 4px; }
+  .product-cat { background: var(--gray-100); padding: 2px 8px; border-radius: 50px; font-size: 11px; }
+  
+  /* DETAIL */
+  .product-detail { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .detail-img { height: 320px; background: var(--gray-100); display: flex; align-items: center; justify-content: center; font-size: 96px; }
+  .detail-body { padding: 28px; }
+  .detail-price { font-size: 28px; font-weight: 800; color: var(--primary); margin-bottom: 12px; }
+  .detail-desc { color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; }
+  .detail-seller { display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--gray-50); border-radius: var(--radius-sm); margin-bottom: 20px; }
+  .detail-actions { display: flex; gap: 10px; }
+  
+  /* STATS */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .stat-card { background: var(--card); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); border-left: 4px solid var(--primary); }
+  .stat-card.green { border-left-color: var(--success); }
+  .stat-card.amber { border-left-color: var(--accent); }
+  .stat-card.red { border-left-color: var(--danger); }
+  .stat-val { font-size: 28px; font-weight: 800; margin-bottom: 4px; color: var(--text); }
+  .stat-lbl { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+  
+  /* TABLE */
+  .table-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .table-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .table-title { font-size: 16px; font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: var(--gray-50); padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+  td { padding: 12px 16px; font-size: 14px; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--gray-50); }
+  
+  /* STATUS BADGES */
+  .status { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 50px; font-size: 12px; font-weight: 600; }
+  .status-active { background: #D1FAE5; color: #065F46; }
+  .status-pending { background: #FEF3C7; color: #92400E; }
+  .status-done { background: #DBEAFE; color: #1E40AF; }
+  .status-cancel { background: #FEE2E2; color: #991B1B; }
+  
+  /* CHAT */
+  .chat-layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; height: calc(100vh - 128px); }
+  .chat-list { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; }
+  .chat-list-header { padding: 16px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 15px; }
+  .chat-rooms { overflow-y: auto; flex: 1; }
+  .chat-room-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; border-bottom: 1px solid var(--gray-100); transition: background .1s; }
+  .chat-room-item:hover, .chat-room-item.active { background: var(--primary-light); }
+  .chat-room-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .chat-room-last { font-size: 12px; color: var(--text-muted); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 180px; }
+  .chat-window { background: white; border-radius: var(--radius); box-shadow: var(--shadow); display: flex; flex-direction: column; }
+  .chat-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; background: var(--gray-50); }
+  .msg { max-width: 70%; }
+  .msg.sent { align-self: flex-end; }
+  .msg-bubble { padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5; }
+  .msg.received .msg-bubble { background: white; color: var(--text); border-radius: 4px 16px 16px 16px; box-shadow: var(--shadow); }
+  .msg.sent .msg-bubble { background: var(--primary); color: white; border-radius: 16px 4px 16px 16px; }
+  .msg-time { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+  .msg.sent .msg-time { text-align: right; }
+  .chat-input-area { padding: 16px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
+  .chat-input-area input { flex: 1; padding: 10px 16px; border: 1.5px solid var(--border); border-radius: 50px; font-size: 14px; outline: none; transition: border .15s; }
+  .chat-input-area input:focus { border-color: var(--primary); }
+  .chat-input-area button { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .chat-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); gap: 8px; }
+  
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 24px; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: white; border-radius: 16px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+  .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .modal-title { font-size: 18px; font-weight: 700; }
+  .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-muted); padding: 4px; border-radius: 6px; }
+  .modal-close:hover { background: var(--gray-100); }
+  .modal-body { padding: 24px; }
+  .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+  
+  /* NOTIFICATIONS */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--gray-900); color: white; padding: 12px 20px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; z-index: 9999; transform: translateY(100px); opacity: 0; transition: all .3s; display: flex; align-items: center; gap: 8px; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { background: var(--success); }
+  .toast.error { background: var(--danger); }
+  
+  /* PROFILE */
+  .profile-header { background: linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%); padding: 40px 24px; color: white; text-align: center; }
+  .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.3); margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; border: 3px solid white; }
+  .profile-name { font-size: 22px; font-weight: 700; }
+  .profile-role { opacity: .8; font-size: 14px; margin-top: 4px; }
+  
+  /* EMPTY STATE */
+  .empty-state { text-align: center; padding: 60px 24px; color: var(--text-muted); }
+  .empty-state .icon { font-size: 56px; margin-bottom: 16px; }
+  .empty-state h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+  .empty-state p { font-size: 14px; }
+  
+  /* MISC */
+  .section { margin-bottom: 32px; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .section-title { font-size: 18px; font-weight: 700; }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .tag { background: var(--primary-light); color: var(--primary); padding: 3px 10px; border-radius: 50px; font-size: 12px; font-weight: 500; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .text-center { text-align: center; }
+  .mt-1 { margin-top: 8px; }
+  .mt-2 { margin-top: 16px; }
+  .mt-3 { margin-top: 24px; }
+  .mb-2 { margin-bottom: 16px; }
+  .gap-10 { display: flex; gap: 10px; }
+  
+  /* Notification dot */
+  .notif-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--danger); margin-left: 4px; }
+  
+  @media (max-width: 768px) {
+    .chat-layout { grid-template-columns: 1fr; }
+    .products-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+    .grid-2 { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .hero h1 { font-size: 26px; }
+    .hero p { font-size: 15px; }
+    .navbar { padding: 0 12px; }
+    .container { padding: 16px; }
+    .detail-actions { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- AUTH PAGE -->
+<div id="authPage" class="app">
+  <div class="auth-bg">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <h1>🎓 CampusMarket</h1>
+        <p>Marketplace Khusus Mahasiswa Kampus</p>
+      </div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login')">Masuk</button>
+        <button class="auth-tab" onclick="switchAuthTab('register')">Daftar</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="loginForm">
+        <div id="loginError" class="error-msg"></div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" class="form-control" id="loginEmail" placeholder="mahasiswa@kampus.ac.id" value="mahasiswa@kampus.ac.id">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" class="form-control" id="loginPass" placeholder="••••••••" value="123456">
+        </div>
+        <button class="btn btn-primary btn-full mt-2" onclick="doLogin()">Masuk ke CampusMarket</button>
+        <p class="text-center mt-2" style="font-size:13px;color:var(--text-muted)">
+          Admin: admin@campusmarket.id / admin123
+        </p>
+      </div>
+
+      <!-- REGISTER -->
+      <div id="registerForm" style="display:none">
+        <div id="regError" class="error-msg"></div>
+        <div id="regSuccess" class="success-msg"></div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Nama Lengkap</label>
+            <input type="text" class="form-control" id="regName" placeholder="Nama Lengkap">
+          </div>
+          <div class="form-group">
+            <label>NIM</label>
+            <input type="text" class="form-control" id="regNim" placeholder="2021xxxxx">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email Kampus</label>
+          <input type="email" class="form-control" id="regEmail" placeholder="nim@kampus.ac.id">
+        </div>
+        <div class="form-group">
+          <label>Program Studi</label>
+          <select class="form-control" id="regProdi">
+            <option value="">Pilih Prodi</option>
+            <option>Teknik Informatika</option>
+            <option>Sistem Informasi</option>
+            <option>Teknik Elektro</option>
+            <option>Manajemen</option>
+            <option>Akuntansi</option>
+            <option>Ilmu Komunikasi</option>
+            <option>Hukum</option>
+            <option>Kedokteran</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" class="form-control" id="regPass" placeholder="Min. 6 karakter">
+        </div>
+        <button class="btn btn-primary btn-full mt-2" onclick="doRegister()">Buat Akun</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp" class="app" style="display:none">
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-brand" onclick="showPage('home')">
+      <span>🎓</span> CampusMarket
+    </div>
+    <div class="nav-links" id="navLinks">
+      <button onclick="showPage('home')" data-page="home">🏠 Beranda</button>
+      <button onclick="showPage('browse')" data-page="browse">🛍️ Produk</button>
+      <button onclick="showPage('sell')" data-page="sell">➕ Jual</button>
+      <button onclick="showPage('chat')" data-page="chat" id="chatBtn">💬 Chat</button>
+      <button onclick="showPage('transactions')" data-page="transactions">📋 Transaksi</button>
+      <button onclick="showPage('admin')" data-page="admin" id="adminBtn" style="display:none">⚙️ Admin</button>
+    </div>
+    <div class="nav-user">
+      <div class="avatar" id="navAvatar" onclick="showPage('profile')"></div>
+      <button class="btn btn-sm" onclick="doLogout()" style="color:var(--danger);background:none;border:1px solid var(--danger)">Keluar</button>
+    </div>
+  </nav>
+
+  <!-- HOME PAGE -->
+  <div id="homePage" class="page main-content">
+    <div class="hero">
+      <h1>🎓 CampusMarket</h1>
+      <p>Jual beli kebutuhan kampus dengan mudah, cepat, dan aman</p>
+      <div class="search-bar">
+        <input type="text" id="heroSearch" placeholder="Cari produk, jasa, atau kebutuhan kuliah...">
+        <button onclick="doHeroSearch()">🔍 Cari</button>
+      </div>
+    </div>
+    <div class="container">
+      <!-- Stats -->
+      <div class="stats-grid" id="homeStats"></div>
+
+      <!-- Featured Products -->
+      <div class="section">
+        <div class="section-header">
+          <h2 class="section-title">🔥 Produk Terbaru</h2>
+          <button class="btn btn-outline btn-sm" onclick="showPage('browse')">Lihat Semua →</button>
+        </div>
+        <div class="products-grid" id="featuredProducts"></div>
+      </div>
+
+      <!-- Categories -->
+      <div class="section">
+        <h2 class="section-title mb-2">📦 Kategori Populer</h2>
+        <div class="products-grid" id="categoryCards"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BROWSE PAGE -->
+  <div id="browsePage" class="page main-content">
+    <div class="container">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">🛍️ Semua Produk</h1>
+          <p class="page-sub" id="browseCount">Menampilkan semua produk</p>
+        </div>
+        <div class="gap-10">
+          <input type="text" class="form-control" id="browseSearch" placeholder="🔍 Cari produk..." style="width:220px" oninput="renderBrowse()">
+          <select class="form-control" id="browseSort" onchange="renderBrowse()" style="width:150px">
+            <option value="newest">Terbaru</option>
+            <option value="cheapest">Termurah</option>
+            <option value="expensive">Termahal</option>
+          </select>
+        </div>
+      </div>
+      <div class="cats" id="browseCats"></div>
+      <div class="products-grid" id="browseProducts"></div>
+    </div>
+  </div>
+
+  <!-- PRODUCT DETAIL PAGE -->
+  <div id="detailPage" class="page main-content">
+    <div class="container" style="max-width:800px">
+      <button class="btn btn-secondary btn-sm mb-2" onclick="history.back(); showPage(prevPage)">← Kembali</button>
+      <div class="product-detail" id="productDetailContent"></div>
+    </div>
+  </div>
+
+  <!-- SELL PAGE -->
+  <div id="sellPage" class="page main-content">
+    <div class="container" style="max-width:680px">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">➕ Pasang Produk/Jasa</h1>
+          <p class="page-sub">Isi detail produk yang ingin kamu jual</p>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="modal-body">
+          <div id="sellError" class="error-msg"></div>
+          <div id="sellSuccess" class="success-msg"></div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Nama Produk/Jasa *</label>
+              <input type="text" class="form-control" id="sName" placeholder="Contoh: Laptop Lenovo ThinkPad">
+            </div>
+            <div class="form-group">
+              <label>Tipe *</label>
+              <select class="form-control" id="sType">
+                <option value="produk">Produk</option>
+                <option value="jasa">Jasa</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Harga (Rp) *</label>
+              <input type="number" class="form-control" id="sPrice" placeholder="0 untuk gratis">
+            </div>
+            <div class="form-group">
+              <label>Kategori *</label>
+              <select class="form-control" id="sCat"></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Kondisi</label>
+            <select class="form-control" id="sCondition">
+              <option value="Baru">Baru</option>
+              <option value="Bekas - Baik">Bekas - Kondisi Baik</option>
+              <option value="Bekas - Cukup">Bekas - Kondisi Cukup</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Deskripsi Produk *</label>
+            <textarea class="form-control" id="sDesc" placeholder="Jelaskan detail produk/jasa kamu..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Emoji/Ikon Produk</label>
+            <input type="text" class="form-control" id="sEmoji" placeholder="🎒 📚 💻 📱 (opsional)">
+          </div>
+          <div class="form-group">
+            <label>Nomor WhatsApp</label>
+            <input type="text" class="form-control" id="sWa" placeholder="08xxxxxxxxxx">
+          </div>
+          <button class="btn btn-primary btn-full mt-2" onclick="doSellProduct()">🚀 Pasang Iklan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT PAGE -->
+  <div id="chatPage" class="page main-content">
+    <div class="container">
+      <div class="page-header">
+        <h1 class="page-title">💬 Pesan</h1>
+      </div>
+      <div class="chat-layout">
+        <div class="chat-list">
+          <div class="chat-list-header">Percakapan</div>
+          <div class="chat-rooms" id="chatRoomsList"></div>
+        </div>
+        <div class="chat-window" id="chatWindow">
+          <div class="chat-empty">
+            <div style="font-size:48px">💬</div>
+            <h3>Belum ada percakapan</h3>
+            <p>Pilih percakapan atau hubungi penjual dari halaman produk</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRANSACTIONS PAGE -->
+  <div id="transactionsPage" class="page main-content">
+    <div class="container">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">📋 Riwayat Transaksi</h1>
+          <p class="page-sub">Semua transaksi pembelian dan penjualan kamu</p>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openTransactionModal()">+ Catat Transaksi</button>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:16px">
+        <button class="btn btn-sm" id="txAll" onclick="filterTx('all')" style="background:var(--primary);color:white">Semua</button>
+        <button class="btn btn-secondary btn-sm" id="txBeli" onclick="filterTx('beli')">Pembelian</button>
+        <button class="btn btn-secondary btn-sm" id="txJual" onclick="filterTx('jual')">Penjualan</button>
+      </div>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Produk</th>
+              <th>Pihak</th>
+              <th>Tipe</th>
+              <th>Harga</th>
+              <th>Status</th>
+              <th>Tanggal</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="txTableBody"></tbody>
+        </table>
+        <div id="txEmpty" class="empty-state" style="display:none">
+          <div class="icon">📋</div>
+          <h3>Belum ada transaksi</h3>
+          <p>Transaksi akan muncul di sini</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN PAGE -->
+  <div id="adminPage" class="page main-content">
+    <div class="container">
+      <div class="page-header">
+        <h1 class="page-title">⚙️ Panel Admin</h1>
+        <p class="page-sub">Kelola data marketplace</p>
+      </div>
+      <div class="stats-grid" id="adminStats"></div>
+
+      <!-- Tabs -->
+      <div class="gap-10 mb-2" style="flex-wrap:wrap">
+        <button class="btn btn-primary btn-sm" onclick="showAdminTab('users')">👥 Pengguna</button>
+        <button class="btn btn-secondary btn-sm" onclick="showAdminTab('products')">📦 Produk</button>
+        <button class="btn btn-secondary btn-sm" onclick="showAdminTab('categories')">🗂️ Kategori</button>
+        <button class="btn btn-secondary btn-sm" onclick="showAdminTab('transactions')">💳 Transaksi</button>
+      </div>
+
+      <!-- Users Tab -->
+      <div id="adminUsers" class="table-card">
+        <div class="table-header">
+          <span class="table-title">👥 Data Pengguna</span>
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Nama</th><th>Email</th><th>NIM</th><th>Prodi</th><th>Role</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="adminUsersBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Products Tab -->
+      <div id="adminProducts" class="table-card" style="display:none">
+        <div class="table-header">
+          <span class="table-title">📦 Semua Produk</span>
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Produk</th><th>Penjual</th><th>Kategori</th><th>Harga</th><th>Tipe</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="adminProductsBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Categories Tab -->
+      <div id="adminCats" class="table-card" style="display:none">
+        <div class="table-header">
+          <span class="table-title">🗂️ Kategori</span>
+          <button class="btn btn-primary btn-sm" onclick="openCatModal()">+ Tambah</button>
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Icon</th><th>Nama Kategori</th><th>Deskripsi</th><th>Jumlah Produk</th><th>Aksi</th></tr></thead>
+          <tbody id="adminCatsBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Transactions Tab -->
+      <div id="adminTx" class="table-card" style="display:none">
+        <div class="table-header">
+          <span class="table-title">💳 Semua Transaksi</span>
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Produk</th><th>Pembeli</th><th>Penjual</th><th>Harga</th><th>Status</th><th>Tanggal</th></tr></thead>
+          <tbody id="adminTxBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE PAGE -->
+  <div id="profilePage" class="page main-content">
+    <div id="profileHeader" class="profile-header"></div>
+    <div class="container" style="max-width:800px">
+      <div class="grid-2 mt-3">
+        <div>
+          <div class="table-card">
+            <div class="table-header"><span class="table-title">📦 Produk Saya</span></div>
+            <div id="myProductsList" style="padding:16px"></div>
+          </div>
+        </div>
+        <div>
+          <div class="table-card">
+            <div class="table-header"><span class="table-title">ℹ️ Info Akun</span></div>
+            <div style="padding:20px" id="profileInfo"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODALS -->
+<!-- Product Detail Modal (quick view) -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Detail Produk</span>
+      <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
+    </div>
+    <div class="modal-body" id="detailModalBody"></div>
+  </div>
+</div>
+
+<!-- Transaction Modal -->
+<div class="modal-overlay" id="txModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Catat Transaksi</span>
+      <button class="modal-close" onclick="closeModal('txModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Produk</label>
+        <select class="form-control" id="txProduct"></select>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Tipe</label>
+          <select class="form-control" id="txType">
+            <option value="beli">Pembelian</option>
+            <option value="jual">Penjualan</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Harga (Rp)</label>
+          <input type="number" class="form-control" id="txPrice" placeholder="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Nama Pihak (Pembeli/Penjual)</label>
+        <input type="text" class="form-control" id="txParty" placeholder="Nama atau email">
+      </div>
+      <div class="form-group">
+        <label>Catatan</label>
+        <textarea class="form-control" id="txNote" placeholder="Catatan transaksi..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('txModal')">Batal</button>
+      <button class="btn btn-primary" onclick="saveTransaction()">Simpan Transaksi</button>
+    </div>
+  </div>
+</div>
+
+<!-- Category Modal -->
+<div class="modal-overlay" id="catModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Tambah Kategori</span>
+      <button class="modal-close" onclick="closeModal('catModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Nama Kategori</label>
+        <input type="text" class="form-control" id="catName" placeholder="Contoh: Buku & Alat Tulis">
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Icon (Emoji)</label>
+          <input type="text" class="form-control" id="catIcon" placeholder="📚">
+        </div>
+        <div class="form-group">
+          <label>Warna (hex)</label>
+          <input type="color" class="form-control" id="catColor" value="#4F46E5">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Deskripsi</label>
+        <input type="text" class="form-control" id="catDesc" placeholder="Deskripsi singkat kategori">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('catModal')">Batal</button>
+      <button class="btn btn-primary" onclick="saveCategory()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== DATABASE (localStorage) ====================
+const DB = {
+  get(key) { try { return JSON.parse(localStorage.getItem('cm_' + key)) || null; } catch { return null; } },
+  set(key, val) { localStorage.setItem('cm_' + key, JSON.stringify(val)); },
+  getArr(key) { return this.get(key) || []; },
+  push(key, val) { const arr = this.getArr(key); arr.push(val); this.set(key, arr); return val; },
+};
+
+// ==================== INIT DATA ====================
+function initData() {
+  if (DB.get('initialized')) return;
+
+  // Admin
+  const users = [
+    { id: 'u1', name: 'Admin CampusMarket', email: 'admin@campusmarket.id', pass: 'admin123', nim: '0000000', prodi: 'Admin', role: 'admin', status: 'active', joined: '2024-01-01' },
+    { id: 'u2', name: 'Andi Firmansyah', email: 'mahasiswa@kampus.ac.id', pass: '123456', nim: '2021001', prodi: 'Teknik Informatika', role: 'user', status: 'active', joined: '2024-01-05' },
+    { id: 'u3', name: 'Sari Dewi', email: 'sari@kampus.ac.id', pass: '123456', nim: '2021002', prodi: 'Sistem Informasi', role: 'user', status: 'active', joined: '2024-01-08' },
+    { id: 'u4', name: 'Budi Santoso', email: 'budi@kampus.ac.id', pass: '123456', nim: '2021003', prodi: 'Manajemen', role: 'user', status: 'active', joined: '2024-01-10' },
+    { id: 'u5', name: 'Maya Putri', email: 'maya@kampus.ac.id', pass: '123456', nim: '2021004', prodi: 'Akuntansi', role: 'user', status: 'active', joined: '2024-01-12' },
+  ];
+
+  const cats = [
+    { id: 'c1', name: 'Buku & Literatur', icon: '📚', color: '#4F46E5', desc: 'Buku teks, novel, jurnal' },
+    { id: 'c2', name: 'Elektronik', icon: '💻', color: '#06B6D4', desc: 'Laptop, HP, gadget' },
+    { id: 'c3', name: 'Pakaian & Fashion', icon: '👕', color: '#EC4899', desc: 'Baju, sepatu, tas' },
+    { id: 'c4', name: 'Alat Tulis', icon: '🖊️', color: '#F59E0B', desc: 'Pensil, pulpen, kertas' },
+    { id: 'c5', name: 'Jasa Akademik', icon: '🎓', color: '#10B981', desc: 'Les, tugas, skripsi' },
+    { id: 'c6', name: 'Makanan & Minuman', icon: '🍱', color: '#EF4444', desc: 'Snack, minuman, katering' },
+    { id: 'c7', name: 'Kendaraan', icon: '🛵', color: '#8B5CF6', desc: 'Motor, sepeda, oli' },
+    { id: 'c8', name: 'Lainnya', icon: '📦', color: '#6B7280', desc: 'Produk & jasa lainnya' },
+  ];
+
+  const products = [
+    { id: 'p1', name: 'Laptop Lenovo ThinkPad X1', type: 'produk', price: 8500000, cat: 'c2', desc: 'Laptop bekas kondisi mulus, RAM 16GB, SSD 512GB, Core i7 gen 11. Cocok untuk kuliah dan kerja.', emoji: '💻', seller: 'u3', condition: 'Bekas - Baik', wa: '082111223344', status: 'active', date: '2024-06-01', views: 45 },
+    { id: 'p2', name: 'Buku Kalkulus Purcell ed.9', type: 'produk', price: 85000, cat: 'c1', desc: 'Buku kalkulus edisi 9, masih bagus, ada sedikit stabilo di bagian bab 1-3.', emoji: '📚', seller: 'u2', condition: 'Bekas - Baik', wa: '081234567890', status: 'active', date: '2024-06-02', views: 28 },
+    { id: 'p3', name: 'Jasa Pembuatan Skripsi/TA', type: 'jasa', price: 500000, cat: 'c5', desc: 'Bantuan analisis data skripsi dengan SPSS, SmartPLS. Berpengalaman 3 tahun membantu rekan mahasiswa.', emoji: '🎓', seller: 'u4', condition: 'Baru', wa: '087654321098', status: 'active', date: '2024-06-03', views: 62 },
+    { id: 'p4', name: 'iPhone 13 128GB Midnight', type: 'produk', price: 6800000, cat: 'c2', desc: 'iPhone 13 mulus, baterai 89%, lengkap dus & charger. Jual karena ganti HP baru.', emoji: '📱', seller: 'u5', condition: 'Bekas - Baik', wa: '089876543210', status: 'active', date: '2024-06-04', views: 89 },
+    { id: 'p5', name: 'Jas Almamater Ukuran M', type: 'produk', price: 120000, cat: 'c3', desc: 'Jas almamater kampus ukuran M, kondisi bagus, sudah dicuci. Jual karena sudah lulus.', emoji: '👕', seller: 'u2', condition: 'Bekas - Baik', wa: '081234567890', status: 'active', date: '2024-06-05', views: 15 },
+    { id: 'p6', name: 'Les Privat Matematika & Fisika', type: 'jasa', price: 150000, cat: 'c5', desc: 'Les privat matematika dan fisika untuk mahasiswa semester 1-4. Per sesi 2 jam, bisa online/offline.', emoji: '📐', seller: 'u3', condition: 'Baru', wa: '082111223344', status: 'active', date: '2024-06-06', views: 34 },
+    { id: 'p7', name: 'Paket Makan Siang Sehat', type: 'produk', price: 20000, cat: 'c6', desc: 'Paket makan siang bergizi: nasi + lauk + sayur + air mineral. Antar ke area kampus.', emoji: '🍱', seller: 'u4', condition: 'Baru', wa: '087654321098', status: 'active', date: '2024-06-07', views: 77 },
+    { id: 'p8', name: 'Sepeda Lipat Dahon', type: 'produk', price: 1200000, cat: 'c7', desc: 'Sepeda lipat Dahon 7 speed, kondisi cukup, cocok untuk mobilitas kampus. Nego dikit oke.', emoji: '🚲', seller: 'u5', condition: 'Bekas - Cukup', wa: '089876543210', status: 'active', date: '2024-06-08', views: 22 },
+    { id: 'p9', name: 'Flashdisk 64GB Kingston', type: 'produk', price: 75000, cat: 'c2', desc: 'Flashdisk 64GB masih baru belum dibuka dus, beli kelebihan.', emoji: '💾', seller: 'u2', condition: 'Baru', wa: '081234567890', status: 'active', date: '2024-06-09', views: 19 },
+    { id: 'p10', name: 'Jasa Design Poster & Spanduk', type: 'jasa', price: 75000, cat: 'c5', desc: 'Desain poster, spanduk, banner untuk acara kampus. Revisi sampai puas, kirim file PNG/PDF.', emoji: '🎨', seller: 'u3', condition: 'Baru', wa: '082111223344', status: 'active', date: '2024-06-10', views: 41 },
+  ];
+
+  const transactions = [
+    { id: 't1', product: 'p2', buyer: 'u3', seller: 'u2', price: 85000, type: 'beli', status: 'done', note: 'Sudah bayar via transfer', date: '2024-06-05' },
+    { id: 't2', product: 'p7', buyer: 'u2', seller: 'u4', price: 20000, type: 'beli', status: 'pending', note: 'COD depan kantin', date: '2024-06-08' },
+    { id: 't3', product: 'p4', buyer: 'u2', seller: 'u5', price: 6800000, type: 'jual', status: 'active', note: 'Nego harga deal', date: '2024-06-09' },
+  ];
+
+  const messages = [
+    { id: 'm1', room: 'r1', from: 'u3', to: 'u2', text: 'Halo, buku kalkulus masih ada?', time: new Date(Date.now() - 3600000).toISOString() },
+    { id: 'm2', room: 'r1', from: 'u2', to: 'u3', text: 'Masih ada kak! Minat?', time: new Date(Date.now() - 3500000).toISOString() },
+    { id: 'm3', room: 'r1', from: 'u3', to: 'u2', text: 'Nego jadi 70rb bisa gak?', time: new Date(Date.now() - 3400000).toISOString() },
+    { id: 'm4', room: 'r1', from: 'u2', to: 'u3', text: '80rb ya kak, udah murah 😊', time: new Date(Date.now() - 3300000).toISOString() },
+    { id: 'm5', room: 'r2', from: 'u4', to: 'u3', text: 'Kak laptop masih ada? Kondisi gimana?', time: new Date(Date.now() - 7200000).toISOString() },
+    { id: 'm6', room: 'r2', from: 'u3', to: 'u4', text: 'Masih ada! Kondisi bagus banget, bisa video call dulu kalau mau lihat', time: new Date(Date.now() - 7100000).toISOString() },
+  ];
+
+  const rooms = [
+    { id: 'r1', participants: ['u2', 'u3'], product: 'p2', lastMsg: 'm4' },
+    { id: 'r2', participants: ['u3', 'u4'], product: 'p1', lastMsg: 'm6' },
+  ];
+
+  DB.set('users', users);
+  DB.set('cats', cats);
+  DB.set('products', products);
+  DB.set('transactions', transactions);
+  DB.set('messages', messages);
+  DB.set('rooms', rooms);
+  DB.set('initialized', true);
+}
+
+// ==================== AUTH ====================
+let currentUser = null;
+let prevPage = 'home';
+
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t, i) => t.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register')));
+  document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+}
+
+function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+  if (!email || !pass) { errEl.textContent = 'Email dan password wajib diisi!'; errEl.style.display = 'block'; return; }
+  const users = DB.getArr('users');
+  const user = users.find(u => u.email === email && u.pass === pass);
+  if (!user) { errEl.textContent = 'Email atau password salah!'; errEl.style.display = 'block'; return; }
+  if (user.status === 'banned') { errEl.textContent = 'Akun Anda telah dinonaktifkan!'; errEl.style.display = 'block'; return; }
+  currentUser = user;
+  DB.set('session', user.id);
+  bootApp();
+}
+
+function doRegister() {
+  const name = document.getElementById('regName').value.trim();
+  const nim = document.getElementById('regNim').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const prodi = document.getElementById('regProdi').value;
+  const pass = document.getElementById('regPass').value;
+  const errEl = document.getElementById('regError');
+  const sucEl = document.getElementById('regSuccess');
+  errEl.style.display = 'none'; sucEl.style.display = 'none';
+  if (!name || !nim || !email || !prodi || !pass) { errEl.textContent = 'Semua field wajib diisi!'; errEl.style.display = 'block'; return; }
+  if (pass.length < 6) { errEl.textContent = 'Password minimal 6 karakter!'; errEl.style.display = 'block'; return; }
+  const users = DB.getArr('users');
+  if (users.find(u => u.email === email)) { errEl.textContent = 'Email sudah terdaftar!'; errEl.style.display = 'block'; return; }
+  const newUser = { id: 'u' + Date.now(), name, email, pass, nim, prodi, role: 'user', status: 'active', joined: new Date().toISOString().split('T')[0] };
+  users.push(newUser);
+  DB.set('users', users);
+  sucEl.textContent = 'Akun berhasil dibuat! Silakan login.';
+  sucEl.style.display = 'block';
+  setTimeout(() => switchAuthTab('login'), 1500);
+}
+
+function doLogout() {
+  currentUser = null;
+  DB.set('session', null);
+  document.getElementById('authPage').style.display = 'flex';
+  document.getElementById('mainApp').style.display = 'none';
+  showToast('Berhasil keluar 👋');
+}
+
+function bootApp() {
+  document.getElementById('authPage').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'flex';
+  const navAvatar = document.getElementById('navAvatar');
+  navAvatar.textContent = currentUser.name.charAt(0).toUpperCase();
+  document.getElementById('adminBtn').style.display = currentUser.role === 'admin' ? 'inline-flex' : 'none';
+  showPage('home');
+}
+
+// ==================== NAVIGATION ====================
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(page + 'Page').classList.add('active');
+  document.querySelectorAll('.nav-links button').forEach(b => {
+    b.classList.toggle('active', b.dataset.page === page);
+  });
+  if (page !== 'detail') prevPage = page;
+  window.scrollTo(0, 0);
+
+  if (page === 'home') renderHome();
+  else if (page === 'browse') renderBrowse();
+  else if (page === 'chat') renderChat();
+  else if (page === 'transactions') renderTransactions('all');
+  else if (page === 'admin') { if (currentUser.role === 'admin') renderAdmin(); else showPage('home'); }
+  else if (page === 'profile') renderProfile();
+  else if (page === 'sell') renderSellForm();
+}
+
+// ==================== HOME ====================
+function renderHome() {
+  const products = DB.getArr('products').filter(p => p.status === 'active');
+  const users = DB.getArr('users');
+  const txs = DB.getArr('transactions');
+  const stats = [
+    { val: products.length, lbl: '📦 Produk Aktif', cls: '' },
+    { val: users.filter(u => u.role === 'user').length, lbl: '👥 Mahasiswa', cls: 'green' },
+    { val: txs.length, lbl: '💳 Transaksi', cls: 'amber' },
+    { val: DB.getArr('cats').length, lbl: '🗂️ Kategori', cls: 'red' },
+  ];
+  document.getElementById('homeStats').innerHTML = stats.map(s =>
+    `<div class="stat-card ${s.cls}"><div class="stat-val">${s.val}</div><div class="stat-lbl">${s.lbl}</div></div>`
+  ).join('');
+
+  const recent = products.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 8);
+  document.getElementById('featuredProducts').innerHTML = recent.map(p => productCard(p)).join('') || '<div class="empty-state"><div class="icon">📦</div><h3>Belum ada produk</h3></div>';
+
+  const cats = DB.getArr('cats');
+  document.getElementById('categoryCards').innerHTML = cats.map(c => {
+    const count = products.filter(p => p.cat === c.id).length;
+    return `<div class="product-card" onclick="filterByCat('${c.id}')">
+      <div class="product-img" style="font-size:56px;background:${c.color}22">${c.icon}</div>
+      <div class="product-info">
+        <div class="product-name">${c.name}</div>
+        <div class="product-price" style="font-size:14px;color:var(--text-muted)">${count} produk</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function doHeroSearch() {
+  const q = document.getElementById('heroSearch').value.trim();
+  if (!q) return;
+  document.getElementById('browseSearch').value = q;
+  showPage('browse');
+}
+
+function filterByCat(catId) {
+  showPage('browse');
+  setTimeout(() => {
+    document.querySelectorAll('#browseCats .cat-pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.cat === catId);
+    });
+    renderBrowse();
+  }, 100);
+}
+
+// ==================== BROWSE ====================
+let activeFilterCat = '';
+
+function renderBrowse() {
+  const cats = DB.getArr('cats');
+  const catsEl = document.getElementById('browseCats');
+  if (!catsEl.children.length) {
+    catsEl.innerHTML = `<div class="cat-pill active" data-cat="" onclick="setCat('')">🔥 Semua</div>` +
+      cats.map(c => `<div class="cat-pill" data-cat="${c.id}" onclick="setCat('${c.id}')">${c.icon} ${c.name}</div>`).join('');
+  }
+
+  let products = DB.getArr('products').filter(p => p.status === 'active');
+  const q = document.getElementById('browseSearch').value.toLowerCase();
+  if (q) products = products.filter(p => p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q));
+  if (activeFilterCat) products = products.filter(p => p.cat === activeFilterCat);
+  const sort = document.getElementById('browseSort').value;
+  if (sort === 'cheapest') products.sort((a, b) => a.price - b.price);
+  else if (sort === 'expensive') products.sort((a, b) => b.price - a.price);
+  else products.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  document.getElementById('browseCount').textContent = `Menampilkan ${products.length} produk`;
+  document.getElementById('browseProducts').innerHTML = products.map(p => productCard(p)).join('') ||
+    `<div class="empty-state" style="grid-column:1/-1"><div class="icon">🔍</div><h3>Produk tidak ditemukan</h3><p>Coba kata kunci lain</p></div>`;
+}
+
+function setCat(catId) {
+  activeFilterCat = catId;
+  document.querySelectorAll('#browseCats .cat-pill').forEach(p => p.classList.toggle('active', p.dataset.cat === catId));
+  renderBrowse();
+}
+
+function productCard(p) {
+  const users = DB.getArr('users');
+  const cats = DB.getArr('cats');
+  const seller = users.find(u => u.id === p.seller);
+  const cat = cats.find(c => c.id === p.cat);
+  const price = p.price === 0 ? '<span class="product-price free">GRATIS</span>' : `<div class="product-price">Rp ${p.price.toLocaleString('id')}</div>`;
+  return `<div class="product-card" onclick="openDetail('${p.id}')">
+    <div class="product-img">${p.emoji || '📦'}<span class="product-badge ${p.type === 'jasa' ? 'jasa' : ''}">${p.type === 'jasa' ? 'Jasa' : 'Produk'}</span></div>
+    <div class="product-info">
+      <div class="product-name">${p.name}</div>
+      ${price}
+      <div class="product-meta">
+        <div class="product-seller">👤 ${seller ? seller.name.split(' ')[0] : '?'}</div>
+        <div class="product-cat">${cat ? cat.icon + ' ' + cat.name : ''}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ==================== PRODUCT DETAIL ====================
+function openDetail(pid) {
+  const products = DB.getArr('products');
+  const users = DB.getArr('users');
+  const cats = DB.getArr('cats');
+  const p = products.find(x => x.id === pid);
+  if (!p) return;
+  const seller = users.find(u => u.id === p.seller);
+  const cat = cats.find(c => c.id === p.cat);
+  const isMine = currentUser.id === p.seller;
+  const price = p.price === 0 ? '<span style="color:var(--success);font-size:28px;font-weight:800">GRATIS</span>' : `<div class="detail-price">Rp ${p.price.toLocaleString('id')}</div>`;
+
+  document.getElementById('productDetailContent').innerHTML = `
+    <div class="detail-img" style="font-size:96px">${p.emoji || '📦'}</div>
+    <div class="detail-body">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="background:${p.type === 'jasa' ? 'var(--secondary)' : 'var(--primary)'};color:white;padding:4px 12px;border-radius:50px;font-size:13px;font-weight:600">${p.type === 'jasa' ? 'Jasa' : 'Produk'}</span>
+        <span style="background:var(--gray-100);padding:4px 12px;border-radius:50px;font-size:13px">${cat ? cat.icon + ' ' + cat.name : ''}</span>
+        <span style="background:var(--gray-100);padding:4px 12px;border-radius:50px;font-size:13px">🔧 ${p.condition}</span>
+      </div>
+      <h1 style="font-size:22px;font-weight:700;margin-bottom:10px">${p.name}</h1>
+      ${price}
+      <p class="detail-desc">${p.desc}</p>
+      <div class="detail-seller">
+        <div class="avatar">${seller ? seller.name.charAt(0) : '?'}</div>
+        <div>
+          <div style="font-weight:600">${seller ? seller.name : 'Unknown'}</div>
+          <div style="font-size:13px;color:var(--text-muted)">${seller ? seller.prodi : ''} • Bergabung ${seller ? seller.joined : ''}</div>
+        </div>
+      </div>
+      <div class="detail-actions">
+        ${!isMine ? `<button class="btn btn-primary" onclick="startChat('${p.seller}','${p.id}')">💬 Hubungi Penjual</button>` : ''}
+        ${!isMine && p.wa ? `<a href="https://wa.me/${p.wa.replace(/^0/, '62')}" target="_blank" class="btn btn-success">📱 WhatsApp</a>` : ''}
+        ${!isMine ? `<button class="btn btn-outline" onclick="openTxFromProduct('${pid}')">🛒 Catat Beli</button>` : ''}
+        ${isMine ? `<button class="btn btn-danger btn-sm" onclick="deleteProduct('${pid}')">🗑️ Hapus Iklan</button>` : ''}
+        <div style="flex:1"></div>
+        <span style="font-size:13px;color:var(--text-muted)">👁️ ${p.views || 0} dilihat • 📅 ${p.date}</span>
+      </div>
+    </div>`;
+
+  // Increment views
+  const idx = products.findIndex(x => x.id === pid);
+  if (idx > -1) { products[idx].views = (products[idx].views || 0) + 1; DB.set('products', products); }
+  showPage('detail');
+}
+
+function deleteProduct(pid) {
+  if (!confirm('Hapus iklan ini?')) return;
+  const products = DB.getArr('products');
+  const idx = products.findIndex(p => p.id === pid);
+  if (idx > -1) { products[idx].status = 'deleted'; DB.set('products', products); }
+  showToast('Iklan dihapus', 'success');
+  showPage('profile');
+}
+
+// ==================== SELL ====================
+function renderSellForm() {
+  const cats = DB.getArr('cats');
+  document.getElementById('sCat').innerHTML = cats.map(c => `<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+}
+
+function doSellProduct() {
+  const name = document.getElementById('sName').value.trim();
+  const type = document.getElementById('sType').value;
+  const price = parseInt(document.getElementById('sPrice').value) || 0;
+  const cat = document.getElementById('sCat').value;
+  const desc = document.getElementById('sDesc').value.trim();
+  const emoji = document.getElementById('sEmoji').value.trim() || '📦';
+  const wa = document.getElementById('sWa').value.trim();
+  const condition = document.getElementById('sCondition').value;
+  const errEl = document.getElementById('sellError');
+  const sucEl = document.getElementById('sellSuccess');
+  errEl.style.display = 'none'; sucEl.style.display = 'none';
+  if (!name || !desc || !cat) { errEl.textContent = 'Nama, deskripsi, dan kategori wajib diisi!'; errEl.style.display = 'block'; return; }
+  const newProd = {
+    id: 'p' + Date.now(), name, type, price, cat, desc, emoji, wa, condition,
+    seller: currentUser.id, status: 'active', date: new Date().toISOString().split('T')[0], views: 0
+  };
+  const products = DB.getArr('products');
+  products.push(newProd);
+  DB.set('products', products);
+  sucEl.textContent = '✅ Produk berhasil dipasang!';
+  sucEl.style.display = 'block';
+  ['sName','sDesc','sEmoji','sWa','sPrice'].forEach(id => document.getElementById(id).value = '');
+  showToast('Iklan berhasil dipasang! 🎉', 'success');
+  setTimeout(() => showPage('browse'), 1500);
+}
+
+// ==================== CHAT ====================
+let activeRoom = null;
+
+function renderChat() {
+  const rooms = DB.getArr('rooms');
+  const users = DB.getArr('users');
+  const products = DB.getArr('products');
+  const messages = DB.getArr('messages');
+  const myRooms = rooms.filter(r => r.participants.includes(currentUser.id));
+
+  const listEl = document.getElementById('chatRoomsList');
+  if (!myRooms.length) {
+    listEl.innerHTML = `<div class="empty-state" style="padding:32px"><div class="icon">💬</div><p>Belum ada percakapan</p></div>`;
+    return;
+  }
+  listEl.innerHTML = myRooms.map(r => {
+    const other = r.participants.find(p => p !== currentUser.id);
+    const otherUser = users.find(u => u.id === other);
+    const product = products.find(p => p.id === r.product);
+    const lastMsgObj = messages.filter(m => m.room === r.id).slice(-1)[0];
+    return `<div class="chat-room-item ${activeRoom === r.id ? 'active' : ''}" onclick="openChatRoom('${r.id}')">
+      <div class="avatar" style="font-size:14px">${otherUser ? otherUser.name.charAt(0) : '?'}</div>
+      <div style="overflow:hidden">
+        <div class="chat-room-name">${otherUser ? otherUser.name.split(' ')[0] : '?'}</div>
+        <div class="chat-room-last">${product ? product.emoji + ' ' + product.name : ''}</div>
+        ${lastMsgObj ? `<div class="chat-room-last">${lastMsgObj.text}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+  if (activeRoom) openChatRoom(activeRoom);
+}
+
+function openChatRoom(roomId) {
+  activeRoom = roomId;
+  const rooms = DB.getArr('rooms');
+  const users = DB.getArr('users');
+  const products = DB.getArr('products');
+  const messages = DB.getArr('messages').filter(m => m.room === roomId);
+  const room = rooms.find(r => r.id === roomId);
+  if (!room) return;
+  const other = room.participants.find(p => p !== currentUser.id);
+  const otherUser = users.find(u => u.id === other);
+  const product = products.find(p => p.id === room.product);
+
+  document.querySelectorAll('.chat-room-item').forEach(i => i.classList.remove('active'));
+  document.querySelectorAll('.chat-room-item').forEach(i => {
+    if (i.onclick.toString().includes(roomId)) i.classList.add('active');
+  });
+
+  const chatWin = document.getElementById('chatWindow');
+  chatWin.innerHTML = `
+    <div class="chat-header">
+      <div class="avatar" style="font-size:14px">${otherUser ? otherUser.name.charAt(0) : '?'}</div>
+      <div>
+        <div style="font-weight:700">${otherUser ? otherUser.name : 'Unknown'}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${product ? product.emoji + ' ' + product.name : ''}</div>
+      </div>
+    </div>
+    <div class="chat-messages" id="chatMsgs">
+      ${messages.map(m => {
+        const isMine = m.from === currentUser.id;
+        const t = new Date(m.time);
+        const timeStr = t.toLocaleTimeString('id', { hour: '2-digit', minute: '2-digit' });
+        return `<div class="msg ${isMine ? 'sent' : 'received'}">
+          <div class="msg-bubble">${m.text}</div>
+          <div class="msg-time">${timeStr}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Tulis pesan..." onkeydown="if(event.key==='Enter')sendChatMsg()">
+      <button onclick="sendChatMsg()">➤</button>
+    </div>`;
+  const msgsEl = document.getElementById('chatMsgs');
+  if (msgsEl) msgsEl.scrollTop = msgsEl.scrollHeight;
+}
+
+function sendChatMsg() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text || !activeRoom) return;
+  const rooms = DB.getArr('rooms');
+  const room = rooms.find(r => r.id === activeRoom);
+  const other = room.participants.find(p => p !== currentUser.id);
+  const msg = { id: 'm' + Date.now(), room: activeRoom, from: currentUser.id, to: other, text, time: new Date().toISOString() };
+  const messages = DB.getArr('messages');
+  messages.push(msg);
+  DB.set('messages', messages);
+  input.value = '';
+  openChatRoom(activeRoom);
+}
+
+function startChat(sellerId, productId) {
+  if (sellerId === currentUser.id) { showToast('Ini produk kamu sendiri!'); return; }
+  const rooms = DB.getArr('rooms');
+  let room = rooms.find(r => r.participants.includes(currentUser.id) && r.participants.includes(sellerId) && r.product === productId);
+  if (!room) {
+    room = { id: 'r' + Date.now(), participants: [currentUser.id, sellerId], product: productId, lastMsg: null };
+    rooms.push(room);
+    DB.set('rooms', rooms);
+  }
+  activeRoom = room.id;
+  showPage('chat');
+}
+
+// ==================== TRANSACTIONS ====================
+let txFilter = 'all';
+
+function filterTx(f) {
+  txFilter = f;
+  ['all','beli','jual'].forEach(x => {
+    const el = document.getElementById('tx' + x.charAt(0).toUpperCase() + x.slice(1));
+    el.style.background = x === f ? 'var(--primary)' : '';
+    el.style.color = x === f ? 'white' : '';
+  });
+  renderTransactions(f);
+}
+
+function renderTransactions(filter) {
+  const txs = DB.getArr('transactions');
+  const users = DB.getArr('users');
+  const products = DB.getArr('products');
+  let myTxs = txs.filter(t => t.buyer === currentUser.id || t.seller === currentUser.id);
+  if (filter === 'beli') myTxs = myTxs.filter(t => t.buyer === currentUser.id);
+  if (filter === 'jual') myTxs = myTxs.filter(t => t.seller === currentUser.id);
+  myTxs.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const tbody = document.getElementById('txTableBody');
+  const emptyEl = document.getElementById('txEmpty');
+  if (!myTxs.length) { tbody.innerHTML = ''; emptyEl.style.display = 'block'; return; }
+  emptyEl.style.display = 'none';
+
+  const statusMap = { done: ['status-done', 'Selesai'], pending: ['status-pending', 'Menunggu'], active: ['status-active', 'Proses'], cancel: ['status-cancel', 'Batal'] };
+  tbody.innerHTML = myTxs.map((t, i) => {
+    const prod = products.find(p => p.id === t.product);
+    const isBuyer = t.buyer === currentUser.id;
+    const party = users.find(u => u.id === (isBuyer ? t.seller : t.buyer));
+    const [sCls, sLbl] = statusMap[t.status] || ['status-pending', 'Proses'];
+    return `<tr>
+      <td>${i + 1}</td>
+      <td><strong>${prod ? prod.emoji + ' ' + prod.name : t.product}</strong><br><small style="color:var(--text-muted)">${t.note || ''}</small></td>
+      <td>${party ? party.name.split(' ')[0] : t.party || '-'}</td>
+      <td><span class="status ${isBuyer ? 'status-pending' : 'status-active'}">${isBuyer ? '🛒 Beli' : '💰 Jual'}</span></td>
+      <td><strong>Rp ${t.price.toLocaleString('id')}</strong></td>
+      <td><span class="status ${sCls}">${sLbl}</span></td>
+      <td>${t.date}</td>
+      <td>
+        ${t.status !== 'done' && t.status !== 'cancel' ?
+          `<select onchange="updateTxStatus('${t.id}',this.value)" style="font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:white">
+            <option value="">Ubah</option>
+            <option value="active">Proses</option>
+            <option value="done">Selesai</option>
+            <option value="cancel">Batal</option>
+          </select>` : '<span style="color:var(--text-muted);font-size:12px">-</span>'}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function updateTxStatus(txId, status) {
+  if (!status) return;
+  const txs = DB.getArr('transactions');
+  const idx = txs.findIndex(t => t.id === txId);
+  if (idx > -1) { txs[idx].status = status; DB.set('transactions', txs); }
+  renderTransactions(txFilter);
+  showToast('Status transaksi diperbarui', 'success');
+}
+
+function openTransactionModal() {
+  const products = DB.getArr('products').filter(p => p.status === 'active');
+  document.getElementById('txProduct').innerHTML = products.map(p => `<option value="${p.id}">${p.emoji} ${p.name}</option>`).join('');
+  openModal('txModal');
+}
+
+function openTxFromProduct(pid) {
+  const products = DB.getArr('products');
+  const p = products.find(x => x.id === pid);
+  if (!p) return;
+  document.getElementById('txProduct').innerHTML = `<option value="${p.id}">${p.emoji} ${p.name}</option>`;
+  document.getElementById('txPrice').value = p.price;
+  const sellers = DB.getArr('users');
+  const seller = sellers.find(u => u.id === p.seller);
+  if (seller) document.getElementById('txParty').value = seller.name;
+  openModal('txModal');
+}
+
+function saveTransaction() {
+  const product = document.getElementById('txProduct').value;
+  const type = document.getElementById('txType').value;
+  const price = parseInt(document.getElementById('txPrice').value) || 0;
+  const party = document.getElementById('txParty').value.trim();
+  const note = document.getElementById('txNote').value.trim();
+  if (!product) { showToast('Pilih produk!', 'error'); return; }
+
+  const products = DB.getArr('products');
+  const prod = products.find(p => p.id === product);
+  const newTx = {
+    id: 't' + Date.now(), product, price, type, note, status: 'pending', party,
+    buyer: type === 'beli' ? currentUser.id : prod?.seller || '',
+    seller: type === 'jual' ? currentUser.id : prod?.seller || '',
+    date: new Date().toISOString().split('T')[0]
+  };
+  const txs = DB.getArr('transactions');
+  txs.push(newTx);
+  DB.set('transactions', txs);
+  closeModal('txModal');
+  showToast('Transaksi berhasil dicatat! 📋', 'success');
+  renderTransactions(txFilter);
+}
+
+// ==================== ADMIN ====================
+function renderAdmin() {
+  const users = DB.getArr('users');
+  const products = DB.getArr('products').filter(p => p.status === 'active');
+  const txs = DB.getArr('transactions');
+  const cats = DB.getArr('cats');
+  const stats = [
+    { val: users.length, lbl: '👥 Total User', cls: '' },
+    { val: products.length, lbl: '📦 Total Produk', cls: 'green' },
+    { val: txs.length, lbl: '💳 Total Transaksi', cls: 'amber' },
+    { val: txs.filter(t => t.status === 'done').reduce((s, t) => s + t.price, 0).toLocaleString('id'), lbl: '💰 Total Nilai (Rp)', cls: 'red' },
+  ];
+  document.getElementById('adminStats').innerHTML = stats.map(s =>
+    `<div class="stat-card ${s.cls}"><div class="stat-val">${s.val}</div><div class="stat-lbl">${s.lbl}</div></div>`
+  ).join('');
+  showAdminTab('users');
+}
+
+function showAdminTab(tab) {
+  ['adminUsers','adminProducts','adminCats','adminTx'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  document.getElementById('admin' + tab.charAt(0).toUpperCase() + tab.slice(1)).style.display = 'block';
+
+  if (tab === 'users') renderAdminUsers();
+  else if (tab === 'products') renderAdminProducts();
+  else if (tab === 'categories') renderAdminCats();
+  else if (tab === 'transactions') renderAdminTx();
+}
+
+function renderAdminUsers() {
+  const users = DB.getArr('users');
+  document.getElementById('adminUsersBody').innerHTML = users.map((u, i) => `<tr>
+    <td>${i+1}</td>
+    <td><strong>${u.name}</strong></td>
+    <td>${u.email}</td>
+    <td>${u.nim}</td>
+    <td>${u.prodi}</td>
+    <td><span class="status ${u.role === 'admin' ? 'status-done' : 'status-active'}">${u.role}</span></td>
+    <td><span class="status ${u.status === 'active' ? 'status-active' : 'status-cancel'}">${u.status}</span></td>
+    <td>
+      ${u.id !== currentUser.id ? `<button class="btn btn-sm ${u.status === 'active' ? 'btn-danger' : 'btn-success'}" onclick="toggleUser('${u.id}')">${u.status === 'active' ? 'Nonaktif' : 'Aktifkan'}</button>` : '-'}
+    </td>
+  </tr>`).join('');
+}
+
+function toggleUser(uid) {
+  const users = DB.getArr('users');
+  const idx = users.findIndex(u => u.id === uid);
+  if (idx > -1) {
+    users[idx].status = users[idx].status === 'active' ? 'banned' : 'active';
+    DB.set('users', users);
+    renderAdminUsers();
+    showToast('Status pengguna diperbarui', 'success');
+  }
+}
+
+function renderAdminProducts() {
+  const products = DB.getArr('products');
+  const users = DB.getArr('users');
+  const cats = DB.getArr('cats');
+  document.getElementById('adminProductsBody').innerHTML = products.map((p, i) => {
+    const seller = users.find(u => u.id === p.seller);
+    const cat = cats.find(c => c.id === p.cat);
+    return `<tr>
+      <td>${i+1}</td>
+      <td><strong>${p.emoji} ${p.name}</strong></td>
+      <td>${seller ? seller.name : '-'}</td>
+      <td>${cat ? cat.icon + ' ' + cat.name : '-'}</td>
+      <td>Rp ${p.price.toLocaleString('id')}</td>
+      <td><span class="status ${p.type === 'jasa' ? 'status-done' : 'status-active'}">${p.type}</span></td>
+      <td><span class="status ${p.status === 'active' ? 'status-active' : 'status-cancel'}">${p.status}</span></td>
+      <td>${p.status === 'active' ? `<button class="btn btn-danger btn-sm" onclick="adminDeleteProduct('${p.id}')">Hapus</button>` : '-'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function adminDeleteProduct(pid) {
+  if (!confirm('Hapus produk ini?')) return;
+  const products = DB.getArr('products');
+  const idx = products.findIndex(p => p.id === pid);
+  if (idx > -1) { products[idx].status = 'deleted'; DB.set('products', products); }
+  renderAdminProducts();
+  showToast('Produk dihapus', 'success');
+}
+
+function renderAdminCats() {
+  const cats = DB.getArr('cats');
+  const products = DB.getArr('products').filter(p => p.status === 'active');
+  document.getElementById('adminCatsBody').innerHTML = cats.map((c, i) => `<tr>
+    <td>${i+1}</td>
+    <td style="font-size:24px">${c.icon}</td>
+    <td><strong>${c.name}</strong></td>
+    <td>${c.desc || '-'}</td>
+    <td>${products.filter(p => p.cat === c.id).length}</td>
+    <td><button class="btn btn-danger btn-sm" onclick="deleteCategory('${c.id}')">Hapus</button></td>
+  </tr>`).join('');
+}
+
+function deleteCategory(cid) {
+  if (!confirm('Hapus kategori ini?')) return;
+  const cats = DB.getArr('cats').filter(c => c.id !== cid);
+  DB.set('cats', cats);
+  renderAdminCats();
+  showToast('Kategori dihapus', 'success');
+}
+
+function renderAdminTx() {
+  const txs = DB.getArr('transactions');
+  const users = DB.getArr('users');
+  const products = DB.getArr('products');
+  const statusMap = { done: ['status-done', 'Selesai'], pending: ['status-pending', 'Menunggu'], active: ['status-active', 'Proses'], cancel: ['status-cancel', 'Batal'] };
+  document.getElementById('adminTxBody').innerHTML = txs.map((t, i) => {
+    const prod = products.find(p => p.id === t.product);
+    const buyer = users.find(u => u.id === t.buyer);
+    const seller = users.find(u => u.id === t.seller);
+    const [sCls, sLbl] = statusMap[t.status] || ['status-pending', 'Proses'];
+    return `<tr>
+      <td>${i+1}</td>
+      <td>${prod ? prod.emoji + ' ' + prod.name : '-'}</td>
+      <td>${buyer ? buyer.name : '-'}</td>
+      <td>${seller ? seller.name : '-'}</td>
+      <td>Rp ${t.price.toLocaleString('id')}</td>
+      <td><span class="status ${sCls}">${sLbl}</span></td>
+      <td>${t.date}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ==================== CATEGORY MODAL ====================
+function openCatModal() { openModal('catModal'); }
+function saveCategory() {
+  const name = document.getElementById('catName').value.trim();
+  const icon = document.getElementById('catIcon').value.trim() || '📦';
+  const color = document.getElementById('catColor').value;
+  const desc = document.getElementById('catDesc').value.trim();
+  if (!name) { showToast('Nama kategori wajib diisi!', 'error'); return; }
+  const cats = DB.getArr('cats');
+  cats.push({ id: 'c' + Date.now(), name, icon, color, desc });
+  DB.set('cats', cats);
+  closeModal('catModal');
+  renderAdminCats();
+  showToast('Kategori berhasil ditambahkan! 🗂️', 'success');
+  ['catName','catIcon','catDesc'].forEach(id => document.getElementById(id).value = '');
+}
+
+// ==================== PROFILE ====================
+function renderProfile() {
+  const products = DB.getArr('products').filter(p => p.seller === currentUser.id && p.status === 'active');
+  const txs = DB.getArr('transactions').filter(t => t.buyer === currentUser.id || t.seller === currentUser.id);
+  document.getElementById('profileHeader').innerHTML = `
+    <div class="profile-avatar">${currentUser.name.charAt(0)}</div>
+    <div class="profile-name">${currentUser.name}</div>
+    <div class="profile-role">${currentUser.prodi} • ${currentUser.nim}</div>
+    <div style="display:flex;justify-content:center;gap:24px;margin-top:16px;font-size:14px;opacity:.9">
+      <div><strong>${products.length}</strong><br>Produk Aktif</div>
+      <div><strong>${txs.length}</strong><br>Transaksi</div>
+    </div>`;
+  document.getElementById('profileInfo').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div><div style="font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase">Email</div><div style="font-size:14px">${currentUser.email}</div></div>
+      <div><div style="font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase">NIM</div><div style="font-size:14px">${currentUser.nim}</div></div>
+      <div><div style="font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase">Program Studi</div><div style="font-size:14px">${currentUser.prodi}</div></div>
+      <div><div style="font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase">Bergabung</div><div style="font-size:14px">${currentUser.joined}</div></div>
+      <div><div style="font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase">Role</div><div style="font-size:14px"><span class="status ${currentUser.role === 'admin' ? 'status-done' : 'status-active'}">${currentUser.role}</span></div></div>
+    </div>`;
+  document.getElementById('myProductsList').innerHTML = products.length
+    ? products.map(p => `<div style="display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid var(--border);cursor:pointer" onclick="openDetail('${p.id}')">
+        <span style="font-size:28px">${p.emoji}</span>
+        <div>
+          <div style="font-size:14px;font-weight:600">${p.name}</div>
+          <div style="font-size:12px;color:var(--text-muted)">Rp ${p.price.toLocaleString('id')} • ${p.views || 0} views</div>
+        </div>
+      </div>`).join('')
+    : `<div class="empty-state" style="padding:24px"><div class="icon">📦</div><p>Belum ada produk</p><button class="btn btn-primary btn-sm mt-1" onclick="showPage('sell')">+ Jual Sekarang</button></div>`;
+}
+
+// ==================== UTILS ====================
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (type ? ' ' + type : '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', (e) => { if (e.target === o) o.classList.remove('open'); });
+});
+
+// ==================== BOOT ====================
+initData();
+const savedSession = DB.get('session');
+if (savedSession) {
+  const users = DB.getArr('users');
+  currentUser = users.find(u => u.id === savedSession);
+  if (currentUser && currentUser.status === 'active') {
+    bootApp();
+  } else {
+    document.getElementById('authPage').style.display = 'flex';
+  }
+}
+</script>
+</body>
+</html>
